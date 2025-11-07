@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}
+{{ title|default:"Нове групове заняття" }} — Спорт & Фітнес
+{% endblock %}
+
+{% block content %}
+<div class="container py-4" style="max-width: 700px;">
+  <h3 class="mb-4 fw-bold">
+    {{ title|default:"Нове групове заняття" }}
+  </h3>
+
+  <form method="post" class="card shadow-sm p-4" style="border-radius: 12px;">
+    {% csrf_token %}
+
+    {% if form.non_field_errors %}
+      <div class="alert alert-danger small mb-3">
+        {{ form.non_field_errors|striptags }}
+      </div>
+    {% endif %}
+
+    {% for field in form %}
+      <div class="mb-3">
+        <label for="{{ field.id_for_label }}" class="form-label fw-semibold">{{ field.label }}</label>
+        {{ field }}
+        {% if field.errors %}
+          <div class="text-danger small">{{ field.errors|striptags }}</div>
+        {% endif %}
+      </div>
+    {% endfor %}
+
+    <div class="mt-4 d-flex justify-content-between">
+      <a href="{% url 'schedule_overview' %}" class="btn btn-outline-accent">Назад</a>
+      <button type="submit" class="btn btn-accent">💾 Зберегти</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

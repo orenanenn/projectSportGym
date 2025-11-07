@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}Тарифи — Керування{% endblock %}
+
+{% block content %}
+<style>
+  .tariff-page { color:#f8f9fa; max-width: 1000px; margin: 40px auto; }
+  .tariff-page h1 { font-size: 2rem; color: #ffe08a; margin-bottom: 1rem; }
+  .tariff-page table { width: 100%; border-collapse: collapse; margin-bottom: 1.5rem; }
+  .tariff-page th, .tariff-page td {
+    border: 1px solid #3a3a3a; padding: 10px 12px; text-align: left;
+  }
+  .tariff-page th { background: #2b3035; color: #ffe08a; }
+  .btn-sm { padding: 4px 10px; font-size: 0.9rem; border-radius: 5px; }
+  .btn-add { background:#5c7cfa; color:#fff; text-decoration:none; padding:6px 12px; border-radius:6px; }
+  .btn-add:hover { background:#748ffc; }
+  .actions { display:flex; gap:8px; }
+</style>
+
+<div class="tariff-page">
+  <h1>Тарифи</h1>
+
+  <div class="mb-3 text-end">
+    <a href="{% url 'tariff_create' %}" class="btn-add">+ Додати тариф</a>
+  </div>
+
+  {% if tariffs %}
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Назва</th>
+          <th>Тривалість</th>
+          <th>Ціна (грн)</th>
+          <th>Активний</th>
+          <th>Порядок</th>
+          <th>Дії</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for t in tariffs %}
+        <tr>
+          <td>{{ forloop.counter }}</td>
+          <td>{{ t.name }}</td>
+          <td>{{ t.duration_label }}</td>
+          <td>{{ t.price_uah|floatformat:2 }}</td>
+          <td>{% if t.is_active %}{% else %}—{% endif %}</td>
+          <td>{{ t.sort_order }}</td>
+          <td class="actions">
+            <a href="{% url 'tariff_edit' t.id %}" class="btn btn-sm btn-primary">Редагувати</a>
+            <form method="post" action="{% url 'tariff_delete' t.id %}" style="display:inline;">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Видалити цей тариф?');">×</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>Поки що немає жодного тарифу.</p>
+  {% endif %}
+
+  <div class="mt-3">
+    <a href="{% url 'about' %}" class="text-light">← Повернутися до сторінки “Про нас”</a>
+  </div>
+</div>
+{% endblock %}

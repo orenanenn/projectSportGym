@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% load roles %}
+{% block content %}
+<h3 class="mb-3">Слоти тренера</h3>
+
+<div class="row g-3">
+  <div class="col-md-7">
+    <div class="card h-100">
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table align-middle mb-0">
+            <thead class="small text-uppercase">
+              <tr>
+                {% if is_manager %}<th style="width:22%">Тренер</th>{% endif %}
+                <th>Зал</th>
+                <th>Початок</th>
+                <th>Кінець</th>
+                <th>Статус</th>
+                <th class="text-end" style="width: 220px">Дії</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for s in slots %}
+                <tr>
+                  {% if is_manager %}
+                    <td>
+                      <div class="fw-semibold">{{ s.trainer.full_name|default:s.trainer.user.username }}</div>
+                      <div class="text-muted small">@{{ s.trainer.user.username }}</div>
+                    </td>
+                  {% endif %}
+                  <td>{{ s.hall.name }}</td>
+                  <td>{{ s.start_time }}</td>
+                  <td>{{ s.end_time }}</td>
+                  <td>
+                    {% if s.is_booked %}
+                      <span class="badge bg-danger">Заброньовано</span>
+                    {% else %}
+                      <span class="badge bg-success">Вільний</span>
+                    {% endif %}
+                  </td>
+                  <td class="text-end">
+                    <div class="d-inline-flex gap-2">
+                      {% if not s.is_booked and user|is_role:'client' %}
+                        <form method="post" action="{% url 'slot_book' s.id %}">
+                          {% csrf_token %}
+                          <button class="btn btn-sm btn-accent">Бронювати</button>
+                        </form>
+                      {% endif %}
+
+                      {% if is_manager %}
+                        <a class="btn btn-sm btn-outline-accent" href="{% url 'slot_edit' s.id %}">Редагувати</a>
+                        <a class="btn btn-sm btn-outline-danger" href="{% url 'slot_delete' s.id %}">Видалити</a>
+                      {% elif user|is_role:'trainer' and s.trainer_id == user.profile.id %}
+                        <a class="btn btn-sm btn-outline-accent" href="{% url 'slot_edit' s.id %}">Редагувати</a>
+                        <a class="btn btn-sm btn-outline-danger" href="{% url 'slot_delete' s.id %}">Видалити</a>
+                      {% endif %}
+                    </div>
+                  </td>
+                </tr>
+              {% empty %}
+                <tr>
+                  <td colspan="{% if is_manager %}6{% else %}5{% endif %}" class="text-center text-muted py-4">
+                    Немає слотів
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-5">
+    {% if user|is_role:'trainer' or user|is_role:'manager' %}
+      <div class="card h-100">
+        <div class="card-body">
+          <h5 class="mb-3">Додати слот</h5>
+          <form method="post" class="form-light">
+            {% csrf_token %}
+
+            {% if is_manager %}
+              <div class="mb-3">
+                <label for="trainer" class="form-label">Тренер</label>
+                <select name="trainer" id="trainer" class="form-select">
+                  <option value="">— виберіть тренера —</option>
+                  {% for t in trainers %}
+                    <option value="{{ t.id }}">{{ t.full_name|default:t.user.username }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+            {% endif %}
+
+            <div class="mb-3">
+              {{ form.hall.label_tag }} {{ form.hall }}
+            </div>
+            <div class="mb-3">
+              {{ form.start_time.label_tag }} {{ form.start_time }}
+            </div>
+            <div class="mb-3">
+              {{ form.end_time.label_tag }} {{ form.end_time }}
+            </div>
+
+            <button class="btn btn-accent w-100">Створити</button>
+          </form>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

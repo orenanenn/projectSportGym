@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+{% load price_extras %}
+
+{% block title %}Ціни — Спорт &amp; Фітнес{% endblock %}
+
+{% block content %}
+<style>
+  .price-wrap {
+    max-width: 960px;
+    margin: 40px auto;
+    padding: 0 16px;
+  }
+  .section-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .price-note {
+    color: var(--c-muted);
+    font-size: 0.95rem;
+    margin-bottom: 1rem;
+  }
+
+  /* Accordion */
+  .accordion-item {
+    border: 1px solid var(--c-border);
+    border-radius: var(--radius);
+    background: #fff;
+    overflow: hidden;
+    margin-bottom: 10px;
+  }
+  .accordion-button {
+    font-weight: 700;
+    background: #fff;
+    color: var(--c-text);
+  }
+  .accordion-button:not(.collapsed) {
+    background: var(--c-accent);
+    color: #fff;
+    box-shadow: none;
+  }
+  .accordion-button:focus {
+    box-shadow: none;
+  }
+  .accordion-body {
+    background: #fff;
+    color: var(--c-text);
+  }
+
+  /* Table */
+  .table-lightish {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+  }
+  .table-lightish th,
+  .table-lightish td {
+    border: 1px solid var(--c-border);
+    padding: 10px 12px;
+  }
+  .table-lightish th {
+    background: #fafafa;
+    color: var(--c-accent);
+    font-weight: 700;
+  }
+  .table-lightish td.price {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+  .edit-col a {
+    margin-right: 6px;
+  }
+  .cat-title {
+    font-weight: 700;
+  }
+</style>
+
+<div class="price-wrap fade-in">
+  <div class="section-heading">
+    <h2 class="m-0">Тарифи</h2>
+  </div>
+  <p class="price-note">
+    Оберіть категорію, щоб переглянути доступні абонементи та разові відвідування.
+  </p>
+
+  <div class="accordion" id="priceAccordion">
+    {% for cat in categories %}
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="heading{{ forloop.counter }}">
+          <button class="accordion-button collapsed" type="button"
+                  data-bs-toggle="collapse" data-bs-target="#cat{{ forloop.counter }}"
+                  aria-expanded="false" aria-controls="cat{{ forloop.counter }}">
+            <span class="cat-title">{{ cat.label }}</span>
+            <span class="ms-2 text-muted">({{ cat.items|length }})</span>
+          </button>
+        </h2>
+
+        <div id="cat{{ forloop.counter }}" class="accordion-collapse collapse" data-bs-parent="#priceAccordion">
+          <div class="accordion-body">
+            {% if cat.items %}
+              <div class="table-responsive">
+                <table class="table-lightish">
+                  <thead>
+                    <tr>
+                      <th style="width:45%">Назва</th>
+                      <th style="width:25%">Тривалість</th>
+                      <th style="width:20%">Ціна, грн</th>
+                      {% if is_manager %}<th style="width:10%">Дії</th>{% endif %}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for t in cat.items %}
+                      <tr>
+                        <td>{{ t.name }}</td>
+                        <td>{{ t.duration_label }}</td>
+                        <td class="price">
+                          {% if t.price_uah %}
+                            <b>{{ t.price_uah|money2 }}</b>
+                          {% else %}
+                            —
+                          {% endif %}
+                        </td>
+                        {% if is_manager %}
+                          <td class="edit-col">
+                            <a class="btn btn-sm btn-outline-accent" href="{% url 'price_edit' t.id %}">Редагувати</a>
+                            <a class="btn btn-sm btn-outline-danger" href="{% url 'price_delete' t.id %}">×</a>
+                          </td>
+                        {% endif %}
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            {% else %}
+              <div class="text-muted">Наразі порожньо.</div>
+            {% endif %}
+
+            {% if is_manager %}
+              <div class="mt-3">
+                <a href="{% url 'price_add' cat.code %}" class="btn btn-sm btn-outline-accent">
+                  + Додати тариф у «{{ cat.label }}»
+                </a>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

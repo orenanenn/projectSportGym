@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block title %}Профіль — Спорт & Фітнес{% endblock %}
+
+{% block content %}
+<div class="container py-4" style="max-width: 960px;">
+  <div class="card shadow-sm border-0">
+    <div class="card-body">
+      <div class="d-flex align-items-center justify-content-between flex-wrap mb-3">
+        <div class="d-flex align-items-center gap-3">
+          <div class="rounded-circle bg-light border border-1 d-flex align-items-center justify-content-center"
+               style="width:72px; height:72px; font-weight:700; font-size:24px; color:var(--c-accent);">
+            {{ user.first_name|default:user.username|first|upper }}
+          </div>
+          <div>
+            <h4 class="fw-bold mb-1">
+              {% if user.first_name or user.last_name %}
+                {{ user.first_name }} {{ user.last_name }}
+              {% elif profile.full_name %}
+                {{ profile.full_name }}
+              {% else %}
+                {{ user.username }}
+              {% endif %}
+            </h4>
+            <span class="badge bg-secondary-subtle text-dark border">
+              {{ profile.get_role_display|default:"Користувач" }}
+            </span>
+          </div>
+        </div>
+        <div class="mt-3 mt-sm-0">
+          <a href="{% url 'accounts:profile_edit' %}" class="btn btn-accent me-2">Редагувати</a>
+          <a href="{% url 'home' %}" class="btn btn-outline-accent">На головну</a>
+        </div>
+      </div>
+
+      <hr class="text-muted">
+
+      <div class="row g-3">
+        <div class="col-md-6">
+          <div class="small text-muted">Логін</div>
+          <div class="fw-semibold">{{ user.username }}</div>
+        </div>
+        <div class="col-md-6">
+          <div class="small text-muted">Email</div>
+          <div class="fw-semibold">
+            {% if user.email %}
+              {{ user.email }}
+            {% elif profile.email %}
+              {{ profile.email }}
+            {% else %}—{% endif %}
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="small text-muted">Ім’я</div>
+          <div class="fw-semibold">{{ user.first_name|default:"—" }}</div>
+        </div>
+        <div class="col-md-6">
+          <div class="small text-muted">Прізвище</div>
+          <div class="fw-semibold">{{ user.last_name|default:"—" }}</div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="small text-muted">Дата народження</div>
+          <div class="fw-semibold">{{ profile.birth_date|date:"Y-m-d"|default:"—" }}</div>
+        </div>
+        <div class="col-md-6">
+          <div class="small text-muted">Телефон</div>
+          <div class="fw-semibold">{{ profile.phone|default:"—" }}</div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="small text-muted">Стать</div>
+          <div class="fw-semibold">{{ profile.get_gender_display|default:"—" }}</div>
+        </div>
+
+        {% if profile.role == "trainer" %}
+          <div class="col-md-6">
+            <div class="small text-muted">Статус тренера</div>
+            <div class="fw-semibold">{{ profile.get_status_display|default:"—" }}</div>
+          </div>
+          <div class="col-md-6">
+            <div class="small text-muted">Спеціалізація</div>
+            <div class="fw-semibold">{{ profile.get_specialization_display|default:"—" }}</div>
+          </div>
+          <div class="col-md-6">
+            <div class="small text-muted">Час роботи</div>
+            <div class="fw-semibold">{{ profile.work_time|default:"—" }}</div>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

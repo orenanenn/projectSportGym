@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% load roles %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h3>Групові заняття</h3>
+  {% if user|is_role:'manager' %}
+    <a href="{% url 'group_create' %}" class="btn btn-primary">Створити</a>
+  {% endif %}
+</div>
+
+<div class="card bg-dark text-white border-secondary rounded-3 shadow-sm">
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-dark table-striped table-hover align-middle mb-0">
+        <thead class="small text-uppercase text-secondary">
+          <tr>
+            <th>Назва</th>
+            <th>Зал</th>
+            <th>Тренер</th>
+            <th>Початок</th>
+            <th>Кінець</th>
+            <th>Місць</th>
+            <th class="text-end">Дії</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for g in groups %}
+            <tr>
+              <td class="fw-semibold">{{ g.title }}</td>
+              <td>{{ g.hall.name }}</td>
+              <td>{{ g.trainer.full_name|default:g.trainer.user.get_full_name|default:g.trainer.user.username }}</td>
+              <td>{{ g.start_time|date:"Y-m-d H:i" }}</td>
+              <td>{{ g.end_time|date:"Y-m-d H:i" }}</td>
+              <td>
+                {{ g.max_slots }}
+                <span class="text-muted small">(зайнято {{ g.enrollments.count }})</span>
+              </td>
+              <td class="text-end">
+                <div class="d-inline-flex gap-2">
+                  {% if user|is_role:'client' %}
+                    {% if g.id in enrolled_ids %}
+                      <a class="btn btn-sm btn-outline-danger" href="{% url 'group_unenroll' g.id %}">Відмінити</a>
+                    {% else %}
+                      <a class="btn btn-sm btn-outline-primary" href="{% url 'group_enroll' g.id %}">Записатися</a>
+                    {% endif %}
+                  {% endif %}
+                  {% if user|is_role:'manager' %}
+                    <a class="btn btn-sm btn-outline-secondary" href="{% url 'group_edit' g.id %}">Редагувати</a>
+                    {# якщо колись знадобиться #}
+                    {# <a class="btn btn-sm btn-outline-danger" href="{% url 'group_delete' g.id %}">Видалити</a> #}
+                  {% endif %}
+                </div>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="7" class="text-center text-muted py-4">Поки що немає занять</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

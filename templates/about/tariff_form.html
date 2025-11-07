@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}{{ title|default:"Редагування тарифу" }}{% endblock %}
+
+{% block content %}
+<style>
+  .tariff-form { max-width: 700px; margin: 40px auto; color: #f8f9fa; }
+  .tariff-form h1 { color: #ffe08a; font-size: 2rem; margin-bottom: 1rem; }
+  .tariff-form .card {
+    background-color: #1d242c;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.3);
+  }
+  .tariff-form label { color: #dee2e6; margin-top: 10px; }
+  .tariff-form input, .tariff-form textarea, .tariff-form select {
+    background-color: #2a323b; color: #fff; border: 1px solid #3a3a3a;
+  }
+  .tariff-form input:focus, .tariff-form textarea:focus {
+    border-color: #5c7cfa; box-shadow: none; outline: none;
+  }
+  .btn-primary {
+    background-color: #5c7cfa; border: none; color: #fff;
+    padding: 10px 20px; border-radius: 6px; margin-top: 16px;
+  }
+  .btn-primary:hover { background-color: #748ffc; }
+</style>
+
+<div class="tariff-form">
+  <h1>{{ title|default:"Редагування тарифу" }}</h1>
+  <div class="card">
+    <form method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit" class="btn-primary">Зберегти</button>
+    </form>
+  </div>
+  <div class="mt-3">
+    <a href="{% url 'tariff_list' %}" class="text-light">← Повернутися до списку тарифів</a>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Вхід — Спорт & Фітнес{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+  <div class="card shadow-sm p-4" style="max-width: 420px; width: 100%;">
+    <h3 class="mb-3 text-center fw-bold">Вхід</h3>
+
+    <form method="post" novalidate>
+      {% csrf_token %}
+
+      {% if form.non_field_errors %}
+        <div class="alert alert-danger small">{{ form.non_field_errors|striptags }}</div>
+      {% endif %}
+
+      {% for field in form %}
+        <div class="mb-3">
+          <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+          {{ field }}
+          {% if field.help_text %}
+            <div class="form-text text-muted small">{{ field.help_text|safe }}</div>
+          {% endif %}
+          {% if field.errors %}
+            <div class="text-danger small">{{ field.errors|striptags }}</div>
+          {% endif %}
+        </div>
+      {% endfor %}
+
+      <button type="submit" class="btn btn-accent w-100">Увійти</button>
+    </form>
+
+    <p class="text-center mt-3 mb-0 text-muted">
+      Немає акаунту?
+      <a href="{% url 'accounts:register' %}" class="text-decoration-none" style="color: var(--c-accent);">
+        Зареєструватися
+      </a>
+    </p>
+  </div>
+</div>
+{% endblock %}

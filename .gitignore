@@ -1,0 +1,33 @@
+
+
+# --- Virtual environments ---
+.venv/
+.venv310/
+venv/
+env/
+ENV/
+
+# --- Python cache & compiled files ---
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.py.class
+
+# --- IDE / Editors ---
+.idea/
+.vscode/
+
+# --- OS system files ---
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- Django specific ---
+db.sqlite3
+media/
+staticfiles/
+*.log
+
+# --- Migrations cache (optional) ---
+*/migrations/__pycache__/

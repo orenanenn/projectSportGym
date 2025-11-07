@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% load roles %}
+
+{% block content %}
+<div class="card rounded-3 shadow-sm">
+  <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
+    <h3 class="mb-0">Зали</h3>
+    {% if user|is_role:'manager' %}
+      <a href="{% url 'hall_create' %}" class="btn btn-accent">Новий зал</a>
+    {% endif %}
+  </div>
+
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table align-middle mb-0">
+        <thead class="small text-uppercase" style="background:#F8F8F8; color:#403D3E;">
+          <tr>
+            <th>Назва</th>
+            <th>Місткість</th>
+            <th class="text-end">Дії</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for h in halls %}
+            <tr>
+              <td class="fw-semibold">{{ h.name }}</td>
+              <td>{{ h.capacity }}</td>
+              <td class="cell-actions">
+                {% if user|is_role:'manager' %}
+                  <a href="{% url 'hall_edit' h.id %}" class="btn btn-sm btn-outline-accent">Редагувати</a>
+                  <a href="{% url 'hall_delete' h.id %}" class="btn btn-sm btn-outline-danger">Видалити</a>
+                {% endif %}
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="3" class="text-muted text-center py-4">Поки що немає залів</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

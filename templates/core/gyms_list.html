@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+  <h1>Список залів</h1>
+
+  <ul class="gyms">
+    {% for gym in gyms %}
+      <li class="gym">
+        <span>{{ gym.name }}</span>
+        {% if request.user.is_authenticated and request.user.profile.role == 'manager' %}
+          <a href="{% url 'core:gym_delete' gym.pk %}"
+             class="btn-delete"
+             onclick="return confirm('Точно видалити зал «{{ gym.name }}»?');">
+             Видалити
+          </a>
+        {% endif %}
+      </li>
+    {% empty %}
+      <li>Немає залів.</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endblock %}

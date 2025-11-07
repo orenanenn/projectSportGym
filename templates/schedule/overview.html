@@ -1,0 +1,290 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2 class="mb-4">Загальний розклад</h2>
+
+{% if is_empty %}
+  <div class="alert alert-warning border-0" role="alert">
+    <div class="d-flex align-items-start gap-3">
+      <div class="fs-4">ℹ️</div>
+      <div>
+        <div class="fw-semibold">Нічого не знайдено</div>
+        <div class="text-muted">{{ empty_hint }}</div>
+      </div>
+      <div class="ms-auto">
+        <a href="{% url 'schedule_overview' %}" class="btn btn-sm btn-outline-accent">
+          Скинути фільтри
+        </a>
+      </div>
+    </div>
+  </div>
+{% endif %}
+
+<form method="get" class="row g-3 align-items-end mb-4">
+  <div class="col-md-3">
+    <label class="form-label">Зал</label>
+    <select name="hall" class="form-select">
+      <option value="">Усі</option>
+      {% for h in halls %}
+        <option value="{{ h.id }}" {% if hall_id|default:'' == h.id|stringformat:"s" %}selected{% endif %}>{{ h.name }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="col-md-3">
+    <label class="form-label">Тренер</label>
+    <select name="trainer" class="form-select">
+      <option value="">Усі</option>
+      {% for t in trainers %}
+        <option value="{{ t.id }}" {% if trainer_id|default:'' == t.id|stringformat:"s" %}selected{% endif %}>
+          {{ t.user.get_full_name|default:t.user.username }}
+        </option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="col-md-2">
+    <label class="form-label">Від</label>
+    <input type="date" name="from" value="{{ from }}" class="form-control" placeholder="рррр-мм-дд">
+  </div>
+  <div class="col-md-2">
+    <label class="form-label">До</label>
+    <input type="date" name="to" value="{{ to }}" class="form-control" placeholder="рррр-мм-дд">
+  </div>
+  <div class="col-md-2 d-flex gap-2">
+    <button class="btn btn-accent w-100" type="submit">Застосувати</button>
+    <a class="btn btn-outline-accent w-100" href="{% url 'schedule_overview' %}">Скинути</a>
+  </div>
+</form>
+
+<style>
+  .table td.cell-actions{
+    display:flex;
+    justify-content:flex-end;
+    align-items:center;
+    gap:.5rem;
+    flex-wrap:wrap;
+  }
+  .table td.cell-actions .btn,
+  .table td.cell-actions form{ margin:0; }
+  .table td.cell-actions .btn{ white-space:normal; }
+
+  .table thead th:last-child,
+  .table tbody td.cell-actions{
+    padding-right: 1.25rem;
+  }
+  .table tbody td.cell-actions{
+    min-width: 148px;
+  }
+</style>
+
+<div class="row g-4">
+  <div class="col-lg-6">
+    <div class="card rounded-3 shadow-sm h-100">
+      <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center gap-3">
+          <h5 class="mb-0">Групові заняття</h5>
+          <span class="badge bg-secondary">{{ groups|length }}</span>
+        </div>
+        {% if is_manager %}
+          <a href="{% url 'group_create' %}" class="btn btn-sm btn-outline-accent">+ Створити</a>
+        {% endif %}
+      </div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table align-middle mb-0">
+            <thead class="small text-uppercase">
+              <tr>
+                <th>Назва</th>
+                <th>Зал</th>
+                <th>Тренер</th>
+                <th>Початок</th>
+                <th>Кінець</th>
+                <th>Місць</th>
+                <th>Записано</th>
+                <th class="text-end">Дії</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for g in groups %}
+                {% with enrolled=g.enrollments.count cap=g.max_slots %}
+                <tr>
+                  <td class="fw-semibold">{{ g.title }}</td>
+                  <td>{{ g.hall.name }}</td>
+                  <td>{{ g.trainer.user.get_full_name|default:g.trainer.user.username }}</td>
+                  <td>{{ g.start_time|date:"Y-m-d H:i" }}</td>
+                  <td>{{ g.end_time|date:"Y-m-d H:i" }}</td>
+                  <td>{{ cap|default:"—" }}</td>
+                  <td>{{ enrolled }}</td>
+                  <td class="text-end cell-actions">
+                    {% if is_client %}
+                      {% if g.id in enrolled_group_ids %}
+                        <form method="post" action="{% url 'group_unenroll' g.id %}">
+                          {% csrf_token %}
+                          <button class="btn btn-sm btn-outline-warning" type="submit">Скасувати</button>
+                        </form>
+                      {% else %}
+                        {% if cap and enrolled|default:0 >= cap %}
+                          <button class="btn btn-sm btn-secondary" disabled>Немає місць</button>
+                        {% else %}
+                          <form method="post" action="{% url 'group_enroll' g.id %}">
+                            {% csrf_token %}
+                            <button class="btn btn-sm btn-accent" type="submit">Записатися</button>
+                          </form>
+                        {% endif %}
+                      {% endif %}
+                    {% endif %}
+
+                    {% if is_manager %}
+                      <a href="{% url 'group_edit' g.id %}" class="btn btn-sm btn-outline-accent">Редагувати</a>
+                      <a href="{% url 'group_delete' g.id %}" class="btn btn-sm btn-outline-danger">Видалити</a>
+                    {% endif %}
+                  </td>
+                </tr>
+                {% endwith %}
+              {% empty %}
+                <tr>
+                  <td colspan="8" class="text-muted">Немає занять за вибраними фільтрами</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-6">
+    <div class="card rounded-3 shadow-sm h-100">
+      <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center gap-3">
+          <h5 class="mb-0">Індивідуальні слоти</h5>
+          <span class="badge bg-secondary">{{ slots|length }}</span>
+        </div>
+        {% if is_manager %}
+          <a href="{% url 'trainer_slots' %}" class="btn btn-sm btn-outline-accent">+ Створити слот</a>
+        {% endif %}
+      </div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table align-middle mb-0">
+            <thead class="small text-uppercase">
+              <tr>
+                <th>Зал</th>
+                <th>Тренер</th>
+                <th>Початок</th>
+                <th>Кінець</th>
+                <th>Статус</th>
+                <th class="text-end">Дії</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for s in slots %}
+                <tr>
+                  <td>{{ s.hall.name }}</td>
+                  <td>{{ s.trainer.user.get_full_name|default:s.trainer.user.username }}</td>
+                  <td>{{ s.start_time|date:"Y-m-d H:i" }}</td>
+                  <td>{{ s.end_time|date:"Y-m-d H:i" }}</td>
+                  <td>
+                    {% if s.is_booked %}
+                      <span class="badge bg-danger">Заброньовано</span>
+                    {% else %}
+                      <span class="badge bg-success">Вільний</span>
+                    {% endif %}
+                  </td>
+                  <td class="text-end cell-actions">
+                    {% if is_client %}
+                      {% if s.is_booked and s.id in my_booked_slot_ids %}
+                        <form method="post" action="{% url 'slot_unbook' s.id %}">
+                          {% csrf_token %}
+                          <button class="btn btn-sm btn-outline-warning" type="submit">Скасувати</button>
+                        </form>
+                      {% elif not s.is_booked %}
+                        <form method="post" action="{% url 'slot_book' s.id %}">
+                          {% csrf_token %}
+                          <button class="btn btn-sm btn-accent" type="submit">Забронювати</button>
+                        </form>
+                      {% else %}
+                        <button class="btn btn-sm btn-secondary" disabled>Зайнято</button>
+                      {% endif %}
+                    {% endif %}
+
+                    {% if is_manager %}
+                      <a href="{% url 'slot_edit' s.id %}" class="btn btn-sm btn-outline-accent">Редагувати</a>
+                      <a href="{% url 'slot_delete' s.id %}" class="btn btn-sm btn-outline-danger">Видалити</a>
+                    {% elif is_trainer and s.trainer_id == user.profile.id %}
+                      <a href="{% url 'slot_edit' s.id %}" class="btn btn-sm btn-outline-accent">Редагувати</a>
+                      <a href="{% url 'slot_delete' s.id %}" class="btn btn-sm btn-outline-danger">Видалити</a>
+                    {% endif %}
+                  </td>
+                </tr>
+              {% empty %}
+                <tr>
+                  <td colspan="6" class="text-muted">Немає слотів за вибраними фільтрами</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% if is_client %}
+  <div class="mt-5">
+    <div class="card rounded-3 shadow-sm">
+      <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center gap-3">
+          <h5 class="mb-0">Мої записи</h5>
+          <span class="badge bg-secondary">{{ my_entries|length }}</span>
+        </div>
+      </div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table align-middle mb-0">
+            <thead class="small text-uppercase">
+              <tr>
+                <th>Тип</th>
+                <th>Назва</th>
+                <th>Зал</th>
+                <th>Тренер</th>
+                <th>Початок</th>
+                <th>Кінець</th>
+                <th class="text-end">Дії</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for e in my_entries %}
+                <tr>
+                  <td>{% if e.kind == "group" %}Групове{% else %}Індивідуальне{% endif %}</td>
+                  <td>{{ e.title }}</td>
+                  <td>{{ e.hall }}</td>
+                  <td>{{ e.trainer }}</td>
+                  <td>{{ e.start|date:"Y-m-d H:i" }}</td>
+                  <td>{{ e.end|date:"Y-m-d H:i" }}</td>
+                  <td class="text-end cell-actions">
+                    {% if e.kind == "group" %}
+                      <form method="post" action="{% url 'group_unenroll' e.group_id %}">
+                        {% csrf_token %}
+                        <button class="btn btn-sm btn-outline-warning" type="submit">Скасувати</button>
+                      </form>
+                    {% else %}
+                      <form method="post" action="{% url 'slot_unbook' e.slot_id %}">
+                        {% csrf_token %}
+                        <button class="btn btn-sm btn-outline-warning" type="submit">Скасувати</button>
+                      </form>
+                    {% endif %}
+                  </td>
+                </tr>
+              {% empty %}
+                <tr>
+                  <td colspan="7" class="text-muted">Поки немає активних записів</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endif %}
+{% endblock %}

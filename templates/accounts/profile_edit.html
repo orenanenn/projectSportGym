@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Редагувати профіль користувача{% endblock %}
+
+{% block content %}
+<div class="container py-4" id="profile-edit-root" data-current-role="{{ profile.role|default_if_none:'' }}" style="max-width: 1000px;">
+
+  {% if messages %}
+    <div class="alert alert-success">
+      {% for m in messages %}<div>{{ m }}</div>{% endfor %}
+    </div>
+  {% endif %}
+
+  <form method="post" enctype="multipart/form-data" class="card shadow-sm">
+    {% csrf_token %}
+    <div class="card-body">
+
+      {% if uform.non_field_errors %}
+        <div class="alert alert-danger small">{{ uform.non_field_errors|striptags }}</div>
+      {% endif %}
+      {% if pform.non_field_errors %}
+        <div class="alert alert-danger small">{{ pform.non_field_errors|striptags }}</div>
+      {% endif %}
+
+      <div class="d-flex align-items-center gap-3 mb-3">
+        <div class="rounded-circle bg-light border d-flex align-items-center justify-content-center"
+             style="width:72px;height:72px;font-weight:700;font-size:24px;color:var(--c-accent);">
+          {{ user.first_name|default:user.username|first|upper }}
+        </div>
+        <div>
+          <h4 class="mb-1 fw-bold">
+            {% if uform.first_name.value or uform.last_name.value %}
+              {{ uform.first_name.value }} {{ uform.last_name.value }}
+            {% else %}
+              {{ profile.full_name|default:user.username }}
+            {% endif %}
+          </h4>
+          <span class="badge bg-secondary-subtle text-dark border">
+            Роль: {{ profile.get_role_display|default:profile.role|default:"—" }}
+          </span>
+        </div>
+      </div>
+
+      <hr class="text-muted">
+
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label for="{{ uform.username.id_for_label }}" class="form-label">Логін</label>
+          {{ uform.username }}
+          {% if uform.username.errors %}<div class="text-danger small">{{ uform.username.errors|striptags }}</div>{% endif %}
+        </div>
+
+        <!-- Ім’я -->
+        <div class="col-md-6">
+          <label for="{{ uform.first_name.id_for_label }}" class="form-label">Ім’я</label>
+          {{ uform.first_name }}
+          {% if uform.first_name.errors %}<div class="text-danger small">{{ uform.first_name.errors|striptags }}</div>{% endif %}
+        </div>
+
+        <div class="col-md-6">
+          <label for="{{ uform.last_name.id_for_label }}" class="form-label">Прізвище</label>
+          {{ uform.last_name }}
+          {% if uform.last_name.errors %}<div class="text-danger small">{{ uform.last_name.errors|striptags }}</div>{% endif %}
+        </div>
+
+        <div class="col-md-6">
+          <label for="{{ uform.email.id_for_label }}" class="form-label">Email</label>
+          {{ uform.email }}
+          {% if uform.email.errors %}<div class="text-danger small">{{ uform.email.errors|striptags }}</div>{% endif %}
+        </div>
+
+        {% if pform.birth_date %}
+          <div class="col-md-6">
+            <label for="{{ pform.birth_date.id_for_label }}" class="form-label">Дата народження</label>
+            {{ pform.birth_date }}
+            {% if pform.birth_date.errors %}<div class="text-danger small">{{ pform.birth_date.errors|striptags }}</div>{% endif %}
+          </div>
+        {% endif %}
+
+        {% if pform.phone %}
+          <div class="col-md-6">
+            <label for="{{ pform.phone.id_for_label }}" class="form-label">Телефон</label>
+            {{ pform.phone }}
+            {% if pform.phone.errors %}<div class="text-danger small">{{ pform.phone.errors|striptags }}</div>{% endif %}
+          </div>
+        {% endif %}
+
+        {% if pform.gender %}
+          <div class="col-md-6">
+            <label for="{{ pform.gender.id_for_label }}" class="form-label">Стать</label>
+            {{ pform.gender }}
+            {% if pform.gender.errors %}<div class="text-danger small">{{ pform.gender.errors|striptags }}</div>{% endif %}
+          </div>
+        {% endif %}
+
+        {% if pform.status %}
+          <div class="col-md-6" data-trainer-only>
+            <label for="{{ pform.status.id_for_label }}" class="form-label">Статус тренера</label>
+            {{ pform.status }}
+            {% if pform.status.errors %}<div class="text-danger small">{{ pform.status.errors|striptags }}</div>{% endif %}
+          </div>
+        {% endif %}
+
+        {% if pform.specialization %}
+          <div class="col-md-6" data-trainer-only>
+            <label for="{{ pform.specialization.id_for_label }}" class="form-label">Спеціалізація</label>
+            {{ pform.specialization }}
+            {% if pform.specialization.errors %}<div class="text-danger small">{{ pform.specialization.errors|striptags }}</div>{% endif %}
+          </div>
+        {% endif %}
+
+        {% if pform.work_time %}
+          <div class="col-md-6" data-trainer-only>
+            <label for="{{ pform.work_time.id_for_label }}" class="form-label">Час роботи</label>
+            {{ pform.work_time }}
+            {% if pform.work_time.errors %}<div class="text-danger small">{{ pform.work_time.errors|striptags }}</div>{% endif %}
+          </div>
+        {% endif %}
+      </div>
+
+      <div class="d-flex gap-2 mt-4">
+        <a href="{% url 'accounts:profile' %}" class="btn btn-outline-accent">Скасувати</a>
+        <button type="submit" class="btn btn-accent">Зберегти</button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<script>
+  (function () {
+    const root = document.getElementById("profile-edit-root");
+    const currentRole = (root?.dataset?.currentRole || "").toLowerCase();
+    const trainerBits = document.querySelectorAll("[data-trainer-only]");
+    const show = currentRole === "trainer";
+    trainerBits.forEach(el => { el.style.display = show ? "" : "none"; });
+  })();
+</script>
+{% endblock %}

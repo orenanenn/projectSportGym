@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Редагувати слот{% endblock %}
+
+{% block content %}
+<h3 class="mb-3">Редагувати слот</h3>
+
+<div class="card">
+  <div class="card-body">
+    <form method="post" class="form-light">
+      {% csrf_token %}
+      <div class="row g-3">
+        <div class="col-md-6">
+          <div class="mb-2">
+            {{ form.hall.label_tag }} {{ form.hall }}
+            {% if form.hall.errors %}
+              <div class="text-danger small">{{ form.hall.errors|striptags }}</div>
+            {% endif %}
+          </div>
+          <div class="mb-2">
+            {{ form.start_time.label_tag }} {{ form.start_time }}
+            {% if form.start_time.errors %}
+              <div class="text-danger small">{{ form.start_time.errors|striptags }}</div>
+            {% endif %}
+          </div>
+          <div class="mb-3">
+            {{ form.end_time.label_tag }} {{ form.end_time }}
+            {% if form.end_time.errors %}
+              <div class="text-danger small">{{ form.end_time.errors|striptags }}</div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <div class="d-flex gap-2">
+        <a href="{% url 'trainer_slots' %}" class="btn btn-outline-accent">Скасувати</a>
+        <button class="btn btn-accent" type="submit">Зберегти</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

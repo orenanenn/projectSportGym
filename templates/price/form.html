@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% block title %}{{ title }} — Прайс{% endblock %}
+
+{% block content %}
+<style>
+  .price-form-wrap {
+    max-width: 720px;
+    margin: 40px auto;
+    padding: 0 16px;
+  }
+  .price-form-wrap h2 {
+    font-weight: 700;
+    color: var(--c-text);
+    margin-bottom: 1rem;
+  }
+  .form-label {
+    font-weight: 600;
+    color: var(--c-text);
+  }
+
+  .form-light :where(input:not([type="checkbox"]):not([type="radio"]), select, textarea) {
+    background: #fff !important;
+    color: #0D0D0D !important;
+    border: 1px solid var(--c-border) !important;
+    border-radius: var(--radius);
+    width: 100%;
+    padding: 0.55rem 0.75rem;
+    transition: all 0.2s ease-in-out;
+  }
+  .form-light :where(input:not([type="checkbox"]):not([type="radio"]), select, textarea):focus {
+    border-color: var(--c-accent) !important;
+    box-shadow: 0 0 0 0.15rem rgba(64,61,62,0.15);
+    outline: none;
+  }
+
+  .form-light .form-control,
+  .form-light .form-select {
+    background: #fff !important;
+    color: #0D0D0D !important;
+    border-color: var(--c-border) !important;
+  }
+
+  .form-light .bg-dark { background: #fff !important; }
+  .form-light .text-white { color: #0D0D0D !important; }
+
+
+  .form-light input[type="checkbox"] {
+    width: auto;
+    accent-color: var(--c-accent);
+  }
+
+  .text-danger.small { color: #b3261e !important; }
+</style>
+
+<div class="price-form-wrap fade-in">
+  <h2>{{ title }}</h2>
+
+
+  <form method="post" novalidate class="form-light">
+    {% csrf_token %}
+
+    <div class="mb-3">
+      <label class="form-label">Категорія</label>
+      {{ form.category }}
+      {% if form.category.errors %}
+        <div class="text-danger small">{{ form.category.errors|join:", " }}</div>
+      {% endif %}
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Назва</label>
+      {{ form.name }}
+      {% if form.name.errors %}
+        <div class="text-danger small">{{ form.name.errors|join:", " }}</div>
+      {% endif %}
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Тривалість</label>
+      {{ form.duration_label }}
+      {% if form.duration_label.errors %}
+        <div class="text-danger small">{{ form.duration_label.errors|join:", " }}</div>
+      {% endif %}
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Ціна, грн</label>
+      {{ form.price_uah }}
+      {% if form.price_uah.errors %}
+        <div class="text-danger small">{{ form.price_uah.errors|join:", " }}</div>
+      {% endif %}
+    </div>
+
+    <div class="row g-3">
+      <div class="col-md-6">
+        <label class="form-label">Сортування</label>
+        {{ form.sort_order }}
+        {% if form.sort_order.errors %}
+          <div class="text-danger small">{{ form.sort_order.errors|join:", " }}</div>
+        {% endif %}
+      </div>
+      <div class="col-md-6">
+        <label class="form-label d-block">Активний</label>
+        {{ form.is_active }}
+        {% if form.is_active.errors %}
+          <div class="text-danger small">{{ form.is_active.errors|join:", " }}</div>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="mt-4 d-flex gap-2">
+      <button type="submit" class="btn btn-accent">Зберегти</button>
+      <a href="{% url 'price' %}" class="btn btn-outline-accent">Скасувати</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

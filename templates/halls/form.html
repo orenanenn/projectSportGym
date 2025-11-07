@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h3 class="mb-3">{{ title }}</h3>
+
+<form method="post" class="card p-4" style="border-radius:12px; max-width:700px;">
+  {% csrf_token %}
+  {{ form.as_p }}
+
+  <div class="mt-3 d-flex gap-2">
+    <a href="{% url 'halls_list' %}" class="btn btn-outline-accent">Назад</a>
+    <button type="submit" class="btn btn-accent">Зберегти</button>
+  </div>
+</form>
+{% endblock %}

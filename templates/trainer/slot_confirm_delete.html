@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Видалити слот{% endblock %}
+
+{% block content %}
+<h3 class="mb-3">Видалити слот</h3>
+
+<div class="alert alert-warning border-accent">
+  Ви впевнені, що хочете видалити цей слот?
+</div>
+
+<div class="card mb-3">
+  <ul class="list-group list-group-flush">
+    <li class="list-group-item">
+      <strong>Зал:</strong> {{ slot.hall.name }}
+    </li>
+    <li class="list-group-item">
+      <strong>Початок:</strong> {{ slot.start_time }}
+    </li>
+    <li class="list-group-item">
+      <strong>Кінець:</strong> {{ slot.end_time }}
+    </li>
+    <li class="list-group-item">
+      <strong>Статус:</strong>
+      {% if slot.is_booked %}
+        <span class="text-danger fw-semibold">Заброньовано</span>
+      {% else %}
+        <span class="text-success fw-semibold">Вільний</span>
+      {% endif %}
+    </li>
+  </ul>
+</div>
+
+<form method="post" class="d-flex gap-2">
+  {% csrf_token %}
+  <a href="{% url 'trainer_slots' %}" class="btn btn-outline-accent">Скасувати</a>
+  <button type="submit" class="btn btn-danger">Видалити</button>
+</form>
+{% endblock %}

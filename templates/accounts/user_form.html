@@ -1,0 +1,188 @@
+{% extends "base.html" %}
+{% load profile_extras %}
+{% block title %}{{ title|default:"Створити користувача" }} — Спорт & Фітнес{% endblock %}
+
+{% block content %}
+<div class="container py-4" style="max-width:1100px;">
+  <form method="post" novalidate class="card shadow-sm">
+    {% csrf_token %}
+    <div class="card-body">
+
+      {% if messages %}
+        <div class="alert-custom">
+          {% for m in messages %}<div>{{ m }}</div>{% endfor %}
+        </div>
+      {% endif %}
+
+      <div class="d-flex align-items-center gap-3 mb-3">
+        {% firstof form.first_name.value form.username.value as display_name %}
+        <div class="rounded-circle bg-light border d-flex align-items-center justify-content-center"
+             style="width:72px;height:72px;font-weight:700;font-size:24px;color:var(--c-accent);">
+          {{ display_name|default:"U"|first|upper }}
+        </div>
+        <div>
+          <h3 class="mb-1 fw-bold">
+            {% if form.first_name.value or form.last_name.value %}
+              {{ form.first_name.value }} {{ form.last_name.value }}
+            {% elif pform.full_name.value %}
+              {{ pform.full_name.value }}
+            {% else %}
+              Новий користувач
+            {% endif %}
+          </h3>
+          <span class="badge bg-white border text-secondary">
+            Роль:
+            <span id="role-badge">
+              {% if pform.role.value %}
+                {% with current=pform.role.value %}
+                  {% for val,label in pform.role.field.choices %}
+                    {% if val|stringformat:"s" == current|stringformat:"s" %}{{ label }}{% endif %}
+                  {% endfor %}
+                {% endwith %}
+              {% else %}—{% endif %}
+            </span>
+          </span>
+        </div>
+      </div>
+
+      {% if form.non_field_errors %}
+        <div class="alert alert-danger small">{{ form.non_field_errors|striptags }}</div>
+      {% endif %}
+      {% if pform.non_field_errors %}
+        <div class="alert alert-danger small">{{ pform.non_field_errors|striptags }}</div>
+      {% endif %}
+
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label" for="{{ form.username.id_for_label }}">Логін</label>
+          {{ form.username|add_class:"form-control" }}
+          {% if form.username.help_text %}<div class="text-muted small mt-1">{{ form.username.help_text|safe }}</div>{% endif %}
+          {% if form.username.errors %}<div class="text-danger small">{{ form.username.errors|striptags }}</div>{% endif %}
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label" for="{{ form.email.id_for_label }}">Email</label>
+          {{ form.email|add_class:"form-control" }}
+          {% if form.email.errors %}<div class="text-danger small">{{ form.email.errors|striptags }}</div>{% endif %}
+        </div>
+
+        {% if form.is_active %}
+        <div class="col-md-6">
+          <label class="form-label d-block" for="{{ form.is_active.id_for_label }}">Активний</label>
+          {{ form.is_active|add_class:"form-check-input" }}
+          {% if form.is_active.errors %}<div class="text-danger small mt-1">{{ form.is_active.errors|striptags }}</div>{% endif %}
+        </div>
+        {% endif %}
+
+        <div class="col-md-6">
+          <label class="form-label" for="{{ form.first_name.id_for_label }}">Ім’я</label>
+          {{ form.first_name|add_class:"form-control" }}
+          {% if form.first_name.errors %}<div class="text-danger small">{{ form.first_name.errors|striptags }}</div>{% endif %}
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label" for="{{ form.last_name.id_for_label }}">Прізвище</label>
+          {{ form.last_name|add_class:"form-control" }}
+          {% if form.last_name.errors %}<div class="text-danger small">{{ form.last_name.errors|striptags }}</div>{% endif %}
+        </div>
+
+        {% if form.password %}
+        <div class="col-md-6">
+          <label class="form-label" for="{{ form.password.id_for_label }}">Пароль</label>
+          {{ form.password|add_class:"form-control" }}
+          {% if form.password.errors %}<div class="text-danger small">{{ form.password.errors|striptags }}</div>{% endif %}
+        </div>
+        {% endif %}
+
+        {% if pform.role %}
+        <div class="col-md-6">
+          <label class="form-label" for="{{ pform.role.id_for_label }}">Роль</label>
+          {{ pform.role|add_class:"form-select" }}
+          {% if pform.role.errors %}<div class="text-danger small">{{ pform.role.errors|striptags }}</div>{% endif %}
+        </div>
+        {% endif %}
+
+        {% if pform.birth_date %}
+        <div class="col-md-6">
+          <label class="form-label" for="{{ pform.birth_date.id_for_label }}">Дата народження</label>
+          {{ pform.birth_date|add_class:"form-control" }}
+          {% if pform.birth_date.errors %}<div class="text-danger small">{{ pform.birth_date.errors|striptags }}</div>{% endif %}
+        </div>
+        {% endif %}
+
+        {% if pform.phone %}
+        <div class="col-md-6">
+          <label class="form-label" for="{{ pform.phone.id_for_label }}">Телефон</label>
+          {{ pform.phone|add_class:"form-control" }}
+          {% if pform.phone.errors %}<div class="text-danger small">{{ pform.phone.errors|striptags }}</div>{% endif %}
+        </div>
+        {% endif %}
+
+        {% if pform.email %}
+        <div class="col-md-6">
+          <label class="form-label" for="{{ pform.email.id_for_label }}">Email (профілю)</label>
+          {{ pform.email|add_class:"form-control" }}
+          {% if pform.email.errors %}<div class="text-danger small">{{ pform.email.errors|striptags }}</div>{% endif %}
+        </div>
+        {% endif %}
+
+        {% if pform.gender %}
+        <div class="col-md-6">
+          <label class="form-label" for="{{ pform.gender.id_for_label }}">Стать</label>
+          {{ pform.gender|add_class:"form-select" }}
+          {% if pform.gender.errors %}<div class="text-danger small">{{ pform.gender.errors|striptags }}</div>{% endif %}
+        </div>
+        {% endif %}
+
+        {% if pform.status %}
+        <div class="col-md-6" data-trainer-only>
+          <label class="form-label" for="{{ pform.status.id_for_label }}">Статус тренера</label>
+          {{ pform.status|add_class:"form-select" }}
+          {% if pform.status.errors %}<div class="text-danger small">{{ pform.status.errors|striptags }}</div>{% endif %}
+        </div>
+        {% endif %}
+
+        {% if pform.specialization %}
+        <div class="col-md-6" data-trainer-only>
+          <label class="form-label" for="{{ pform.specialization.id_for_label }}">Спеціалізація</label>
+          {{ pform.specialization|add_class:"form-select" }}
+          {% if pform.specialization.errors %}<div class="text-danger small">{{ pform.specialization.errors|striptags }}</div>{% endif %}
+        </div>
+        {% endif %}
+
+        {% if pform.work_time %}
+        <div class="col-md-6" data-trainer-only>
+          <label class="form-label" for="{{ pform.work_time.id_for_label }}">Час роботи</label>
+          {{ pform.work_time|add_class:"form-control" }}
+          {% if pform.work_time.errors %}<div class="text-danger small">{{ pform.work_time.errors|striptags }}</div>{% endif %}
+        </div>
+        {% endif %}
+      </div>
+      <div class="mt-4 d-flex gap-2">
+        <a class="btn btn-outline-accent" href="{% url 'accounts:people' %}">Скасувати</a>
+        <button type="submit" class="btn btn-accent">Зберегти</button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<script>
+  (function () {
+    const roleSel = document.getElementById("id_role");
+    const roleBadge = document.getElementById("role-badge");
+    const trainerBits = document.querySelectorAll("[data-trainer-only]");
+
+    function isTrainer(v){ return String(v||"").toLowerCase()==="trainer"; }
+    function update() {
+      const val = roleSel ? roleSel.value : "";
+      trainerBits.forEach(el => el.classList.toggle("d-none", !isTrainer(val)));
+      if (roleSel && roleBadge) {
+        const opt = roleSel.options[roleSel.selectedIndex];
+        roleBadge.textContent = opt ? opt.text : "—";
+      }
+    }
+    update();
+    if (roleSel) roleSel.addEventListener("change", update);
+  })();
+</script>
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card rounded-3 shadow-sm" style="max-width:720px; margin:auto;">
+  <div class="card-header bg-white border-bottom">
+    <h4 class="mb-0">Видалити зал</h4>
+  </div>
+  <div class="card-body">
+    <p class="mb-4">
+      Ви дійсно хочете видалити зал <span class="fw-semibold">«{{ hall.name }}»</span>?
+    </p>
+
+    <form method="post" class="d-flex gap-2">
+      {% csrf_token %}
+      <a href="{% url 'halls_list' %}" class="btn btn-outline-accent">Скасувати</a>
+      <button type="submit" class="btn btn-danger">Видалити</button>
+    </form>
+  </div>
+</div>
+{% endblock %}
