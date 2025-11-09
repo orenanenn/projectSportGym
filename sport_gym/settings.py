@@ -1,9 +1,10 @@
 import os
 from pathlib import Path
+from urllib.parse import urlparse
 from dotenv import load_dotenv
 
-load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(dotenv_path=BASE_DIR / ".env", override=True)
 
 SECRET_KEY = os.getenv("SECRET_KEY", "change_me")
 DEBUG = os.getenv("DEBUG", "False") == "True"
@@ -51,12 +52,19 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "sport_gym.wsgi.application"
 
+MONGODB_URI = os.getenv("MONGODB_URI", "").strip()
+if not MONGODB_URI:
+    raise RuntimeError("MONGODB_URI is not set in .env")
+
+parsed = urlparse(MONGODB_URI)
+DB_NAME = (parsed.path or "/").lstrip("/") or "sport_gym"
+
 DATABASES = {
     "default": {
         "ENGINE": "djongo",
-        "NAME": os.getenv("MONGODB_URI").rsplit("/", 1)[-1],
+        "NAME": DB_NAME,
         "ENFORCE_SCHEMA": False,
-        "CLIENT": {"host": os.getenv("MONGODB_URI")},
+        "CLIENT": {"host": MONGODB_URI},
     }
 }
 
@@ -65,10 +73,9 @@ TIME_ZONE = "Europe/Kyiv"
 USE_I18N = True
 USE_TZ = True
 
-
 STATIC_URL = "/static/"
-# STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
+# STATICFILES_DIRS = [BASE_DIR / "static"]
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
@@ -78,4 +85,3 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/"
 LOGIN_URL = "/accounts/login/"
-
