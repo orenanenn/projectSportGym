@@ -4,23 +4,41 @@
 {% block content %}
 <style>
   .page-wrap { max-width: 800px; margin: 24px auto; padding: 0 16px; }
-  .card { background-color:#1d242c; border-radius:12px; padding:20px; color:#e6e6e6; }
+
+  .card-delete {
+    background: #fff;
+    color: #212529;
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid #e9ecef;
+  }
+
   .header { display:flex; align-items:center; justify-content:space-between; gap:16px; }
   .avatar-wrap { display:flex; align-items:center; gap:16px; }
-  .avatar { width:72px; height:72px; border-radius:999px; background:#2a323b; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:24px; }
-  .role-badge { background:#2a323b; padding:4px 10px; border-radius:999px; font-size:12px; }
-  .hr { height:1px; background:#2a323b; margin:14px 0; border:0; }
+
+  .avatar {
+    width:72px; height:72px; border-radius:999px;
+    background:#F2F2F2; color:#0D0D0D;
+    display:flex; align-items:center; justify-content:center;
+    font-weight:700; font-size:24px;
+  }
+
+  .role-badge {
+    background:#F2F2F2; color:#495057;
+    padding:4px 10px; border-radius:999px; font-size:12px;
+  }
+
+  .hr { height:1px; background:#e9ecef; margin:14px 0; border:0; }
   .actions { margin-top:12px; display:flex; gap:10px; }
-  .btn { background:#3163ff; color:#fff; padding:10px 16px; border-radius:10px; text-decoration:none; display:inline-block; border:0; }
-  .btn.secondary { background:#2a323b; }
-  .btn.danger { background:#c92a2a; }
 </style>
 
 <div class="page-wrap">
-  <div class="card">
+  <div class="card-delete shadow-sm">
     <div class="header">
       <div class="avatar-wrap">
-        <div class="avatar">{{ user_obj.first_name|default:user_obj.username|first|upper }}</div>
+        <div class="avatar">
+          {{ user_obj.first_name|default:user_obj.username|first|upper }}
+        </div>
         <div>
           <div style="font-size:22px;font-weight:700;">
             {% if user_obj.first_name or user_obj.last_name %}
@@ -30,7 +48,9 @@
             {% endif %}
           </div>
           {% if user_obj.profile %}
-            <div class="role-badge">Роль: {{ user_obj.profile.get_role_display|default:user_obj.profile.role|default:"—" }}</div>
+            <div class="role-badge">
+              Роль: {{ user_obj.profile.get_role_display|default:user_obj.profile.role|default:"—" }}
+            </div>
           {% endif %}
         </div>
       </div>
@@ -38,15 +58,16 @@
 
     <div class="hr"></div>
 
-    <h4 class="mb-2" style="color:#ffa8a8;">Підтвердження видалення</h4>
-    <p style="margin:0 0 8px 0;">
-      Ви дійсно хочете видалити користувача <strong>{{ user_obj.username }}</strong>? Цю дію не можна скасувати.
+    <h4 class="mb-2 text-danger">Підтвердження видалення</h4>
+    <p class="mb-3">
+      Ви дійсно хочете видалити користувача
+      <strong>{{ user_obj.username }}</strong>? Цю дію не можна скасувати.
     </p>
 
     <form method="post" class="actions">
       {% csrf_token %}
-      <button class="btn danger">Так, видалити</button>
-      <a href="{% url 'accounts:people' %}" class="btn secondary">Скасувати</a>
+      <button type="submit" class="btn btn-danger">Так, видалити</button>
+      <a href="{% url 'accounts:people' %}" class="btn btn-outline-secondary">Скасувати</a>
     </form>
   </div>
 </div>
